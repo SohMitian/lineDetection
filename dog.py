@@ -32,7 +32,9 @@ def writeImgOfList(imgName, img_list):
         cv2.imwrite("img_out/" + str(dataNo) + "/" + imgName + str(i) + ".jpg", img_list[i])
 
 
-# main
+# TODO
+# 二値化の必要性
+
 # img_in内の画像数を取得
 files = glob.glob("img_in/*")
 # 画像の枚数分処理
