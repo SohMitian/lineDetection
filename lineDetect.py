@@ -105,13 +105,6 @@ def writeList(path, imgNo, img_list):
         os.makedirs(path + str(imgNo), exist_ok=True)
         cv2.imwrite(path + str(imgNo) + "/" + str(i) + ".jpg", img_list[i])
 
-def DoB(gray, sigma1, sigma2):
-    # バイラテラルフィルタ(入力画像, 注目画素の領域, 画素値の差による重み, 画素間の距離差による重み)
-    b1 = cv2.bilateralFilter(gray, sigma1, 20, 20)
-    b2 = cv2.bilateralFilter(gray, sigma2, 20, 20)
-    # 2つのガウシアン画像の差分を出力
-    return b1 - b2
-
 # 画像のエッジ検出関数(LSD)
 def adaptiveThresh(src, imgNo):
     # 画像読み込み
