@@ -88,7 +88,7 @@ def listOfDiff(gaus_list):
             diff_list.append(gaus_list[i] - gaus_list[i + 1])
     return diff_list
 
-
+# ハフ変換画像の作成
 def listOfHough(img, diff_list):
     for i in range(len(diff_list)):
         try:
@@ -104,25 +104,6 @@ def writeList(path, imgNo, img_list):
         # 画像の出力ディレクトリを作成
         os.makedirs(path + str(imgNo), exist_ok=True)
         cv2.imwrite(path + str(imgNo) + "/" + str(i) + ".jpg", img_list[i])
-
-# 画像のエッジ検出関数(LSD)
-def adaptiveThresh(src, imgNo):
-    # 画像読み込み
-    img = cv2.imread(src)
-    # グレースケール化
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-
-    # バイラテラルフィルタ(入力画像, 注目画素の領域, 画素値の差による重み, 画素間の距離差による重み)
-    bi = cv2.bilateralFilter(gray, 15, 20, 20)
-
-    # 適応的閾値処理（ガウシアン）
-    th = cv2.adaptiveThreshold(bi, 255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
-            cv2.THRESH_BINARY, 11, 2)
-    # ハフ変換
-    houghLinesOut(img, th)
-
-    cv2.imwrite("../assets/adaptiveThresh/" + str(imgNo) + ".jpg", th)
-
 
 # 画像のエッジ検出関数(LSD+収縮)
 def lsdConst(src):
