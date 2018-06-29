@@ -105,16 +105,6 @@ def writeList(path, imgNo, img_list):
         os.makedirs(path + str(imgNo), exist_ok=True)
         cv2.imwrite(path + str(imgNo) + "/" + str(i) + ".jpg", img_list[i])
 
-
-# DoGフィルタ
-def dogDiff(gray, ksize, sigma):
-    # 標準偏差が異なる2つのガウシアン画像を算出
-    g1 = cv2.GaussianBlur(gray, ksize, sigma)
-    g2 = cv2.GaussianBlur(gray, ksize, sigma+1)
-    # 2つのガウシアン画像の差分を出力
-    return g1 - g2 , g2
-
-
 def DoB(gray, sigma1, sigma2):
     # バイラテラルフィルタ(入力画像, 注目画素の領域, 画素値の差による重み, 画素間の距離差による重み)
     b1 = cv2.bilateralFilter(gray, sigma1, 20, 20)
@@ -201,10 +191,12 @@ def dog(src, imgNo):
     # グレースケール化
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
+    # 各リストの作成
     gausList = listOfGaus(10, gray)
     diffList = listOfDiff(gausList)
     houghList.append(listOfHough(img, diffList))
     
+    # 書き出し
     writeList("../assets/dog/gaus/", imgNo, gausList)
     writeList("../assets/dog/diff/", imgNo, diffList)
     writeList("../assets/dog/hough/", imgNo, houghList)
