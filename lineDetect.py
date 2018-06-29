@@ -12,16 +12,7 @@ def windowControl():
         # ウィンドウ削除
         cv2.destroyAllWindows()
 
-# plot
-def plotHist(img):
-    fig = plt.figure()
-    ax1 = fig.add_subplot(1, 2, 1)
-    ax2 = fig.add_subplot(1, 2, 2)
-    ax1.hist(img.ravel(), 256, [0, 256])
-    ax2.imshow(img)
-    plt.show()
-
-# ハフ変換
+# 古典的ハフ変換
 def houghLinesOut(img, edges):
     lines = cv2.HoughLines(edges, 1, np.pi / 180, 50)
     for rho, theta in lines[0]:
@@ -67,7 +58,7 @@ def lsd(src):
 def straightBilateral(src, count):
     for i in range(count):
         # バイラテラルフィルタ(入力画像, 注目画素の領域, 画素値の差による重み, 画素間の距離差による重み)
-        src = cv2.bilateralFilter(src, 15, 20, 20)
+        src = cv2.bilateralFilter(src, 15, 10, 10)
 
     return src
 
@@ -175,6 +166,27 @@ def dog(src, imgNo):
     writeList("../assets/dog/diff/", imgNo, diffList)
     writeList("../assets/dog/hough/", imgNo, houghList)
 
+def canny(src, imgNo):
+    # 画像読み込み
+    img = cv2.imread(src)
+
+    # グレースケール化
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+    bi = straightBilateral(gray, 2)
+
+    # Cannyエッジ検出
+    edges = cv2.Canny(bi, 50, 100)
+
+    # ハフ変換
+    try:
+         houghLinesOut(img, edges)
+    except TypeError:
+        pass
+
+    cv2.imwrite("../assets/canny/canny/" + str(imgNo) + ".jpg", edges)
+    cv2.imwrite("../assets/canny/img/" + str(imgNo) + ".jpg", img)
+
 
 if __name__ == "__main__":
     # src = "../assets/img_in/17.jpg"
@@ -182,4 +194,4 @@ if __name__ == "__main__":
 
     for imgNo in range(11, 20):
         src = "../assets/img_in/" + str(imgNo) + ".jpg"
-        dog(src, imgNo)
+        canny(src, imgNo)
