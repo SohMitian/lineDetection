@@ -5,6 +5,8 @@ import os
 from matplotlib import pyplot as plt
 
 # ウィンドウ削除
+
+
 def windowControl():
     # escキーを押すと終了
     k = cv2.waitKey(0)
@@ -13,6 +15,8 @@ def windowControl():
         cv2.destroyAllWindows()
 
 # 古典的ハフ変換
+
+
 def houghLinesOut(img, edges):
     lines = cv2.HoughLines(edges, 1, np.pi / 180, 50)
     for rho, theta in lines[0]:
@@ -28,10 +32,13 @@ def houghLinesOut(img, edges):
         cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
 # 確率的ハフ変換
+
+
 def houghLinesPOut(img, edges):
     minLineLength = 10
     maxLineGap = 20
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 100, minLineLength, maxLineGap)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 100,
+                            minLineLength, maxLineGap)
     for x1, y1, x2, y2 in lines[0]:
         cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
@@ -40,13 +47,15 @@ def houghLinesPOut(img, edges):
 def sharpnening(src):
     # カーネルサイズ
     #kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]], np.float)
-    kernel = np.array([[0,-1,0], [-1,5,-1], [0,-1,0]], np.float)
+    kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], np.float)
     # 畳み込み
     conv = cv2.filter2D(src, -1, kernel)
 
     return conv
 
 # lsd
+
+
 def lsd(src):
     lsd = cv2.createLineSegmentDetector()
     lines = lsd.detect(src)[0]
@@ -55,6 +64,8 @@ def lsd(src):
     return draw_line
 
 # バイラテラルフィルタの連続適用
+
+
 def straightBilateral(src, count):
     for i in range(count):
         # バイラテラルフィルタ(入力画像, 注目画素の領域, 画素値の差による重み, 画素間の距離差による重み)
@@ -63,6 +74,8 @@ def straightBilateral(src, count):
     return src
 
 # gausianのリストを作成
+
+
 def listOfGaus(count, gray, xy=3, sigma=1):
     gaus_list = []
     for i in range(count):
@@ -70,6 +83,8 @@ def listOfGaus(count, gray, xy=3, sigma=1):
     return gaus_list
 
 # 差分のリストを作成
+
+
 def listOfDiff(gaus_list):
     diff_list = []
     for i in range(len(gaus_list)):
@@ -80,6 +95,8 @@ def listOfDiff(gaus_list):
     return diff_list
 
 # ハフ変換画像の作成
+
+
 def listOfHough(img, diff_list):
     for i in range(len(diff_list)):
         try:
@@ -90,6 +107,8 @@ def listOfHough(img, diff_list):
     return img
 
 # 画像リストの書き出し
+
+
 def writeList(path, imgNo, img_list):
     for i in range(len(img_list)):
         # 画像の出力ディレクトリを作成
@@ -97,6 +116,8 @@ def writeList(path, imgNo, img_list):
         cv2.imwrite(path + str(imgNo) + "/" + str(i) + ".jpg", img_list[i])
 
 # 画像のエッジ検出関数(LSD+収縮)
+
+
 def lsdConst(src):
     # 画像読み込み
     img = cv2.imread(src)
@@ -132,6 +153,7 @@ def lsdConst(src):
     # ウィンドウ操作
     windowControl()
 
+
 def otsuOnly(src, imgNo):
     # 画像読み込み
     img = cv2.imread(src)
@@ -148,6 +170,7 @@ def otsuOnly(src, imgNo):
     cv2.imwrite("../assets/otsuOnly/otsu/" + str(imgNo) + ".jpg", th)
     cv2.imwrite("../assets/otsuOnly/line/" + str(imgNo) + ".jpg", img)
 
+
 def dog(src, imgNo):
     houghList = []
     # 画像読み込み
@@ -160,11 +183,12 @@ def dog(src, imgNo):
     gausList = listOfGaus(10, gray)
     diffList = listOfDiff(gausList)
     houghList.append(listOfHough(img, diffList))
-    
+
     # 書き出し
     writeList("../assets/dog/gaus/", imgNo, gausList)
     writeList("../assets/dog/diff/", imgNo, diffList)
     writeList("../assets/dog/hough/", imgNo, houghList)
+
 
 def canny(src, imgNo):
     # 画像読み込み
@@ -180,7 +204,7 @@ def canny(src, imgNo):
 
     # ハフ変換
     try:
-         houghLinesOut(img, edges)
+        houghLinesOut(img, edges)
     except TypeError:
         pass
 
