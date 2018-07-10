@@ -5,8 +5,6 @@ import os
 from matplotlib import pyplot as plt
 
 # ウィンドウ削除
-
-
 def windowControl():
     # escキーを押すと終了
     k = cv2.waitKey(0)
@@ -15,8 +13,6 @@ def windowControl():
         cv2.destroyAllWindows()
 
 # 古典的ハフ変換
-
-
 def houghLinesOut(img, edges):
     lines = cv2.HoughLines(edges, 1, np.pi / 180, 50)
     for rho, theta in lines[0]:
@@ -32,8 +28,6 @@ def houghLinesOut(img, edges):
         cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
 # 確率的ハフ変換
-
-
 def houghLinesPOut(img, edges):
     minLineLength = 10
     maxLineGap = 20
@@ -74,8 +68,6 @@ def straightBilateral(src, count):
     return src
 
 # gausianのリストを作成
-
-
 def listOfGaus(count, gray, xy=3, sigma=1):
     gaus_list = []
     for i in range(count):
@@ -83,8 +75,6 @@ def listOfGaus(count, gray, xy=3, sigma=1):
     return gaus_list
 
 # 差分のリストを作成
-
-
 def listOfDiff(gaus_list):
     diff_list = []
     for i in range(len(gaus_list)):
@@ -95,8 +85,6 @@ def listOfDiff(gaus_list):
     return diff_list
 
 # ハフ変換画像の作成
-
-
 def listOfHough(img, diff_list):
     for i in range(len(diff_list)):
         try:
@@ -107,8 +95,6 @@ def listOfHough(img, diff_list):
     return img
 
 # 画像リストの書き出し
-
-
 def writeList(path, imgNo, img_list):
     for i in range(len(img_list)):
         # 画像の出力ディレクトリを作成
@@ -116,8 +102,6 @@ def writeList(path, imgNo, img_list):
         cv2.imwrite(path + str(imgNo) + "/" + str(i) + ".jpg", img_list[i])
 
 # 画像のエッジ検出関数(LSD+収縮)
-
-
 def lsdConst(src):
     # 画像読み込み
     img = cv2.imread(src)
@@ -179,8 +163,10 @@ def dog(src, imgNo):
     # グレースケール化
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
+    bi = straightBilateral(gray, 2)
+
     # 各リストの作成
-    gausList = listOfGaus(10, gray)
+    gausList = listOfGaus(10, bi)
     diffList = listOfDiff(gausList)
     houghList.append(listOfHough(img, diffList))
 
@@ -211,6 +197,36 @@ def canny(src, imgNo):
     cv2.imwrite("../assets/canny/canny/" + str(imgNo) + ".jpg", edges)
     cv2.imwrite("../assets/canny/img/" + str(imgNo) + ".jpg", img)
 
+def SFED(src, imgNo):
+
+    # 画像読み込み
+    img = cv2.imread(src)
+
+    # load model
+    edge_detection = cv2.ximgproc.createStructuredEdgeDetection("model.yml")
+    rgb_im = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    edges = edge_detection.detectEdges(np.float32(rgb_im) / 255.0)
+
+    orimap = edge_detection.computeOrientation(edges)
+    edges = edge_detection.edgesNms(edges, orimap)
+
+    ret, th = cv2.threshold(edges, 0.05, 255, cv2.THRESH_BINARY)
+
+    lines = cv2.HoughLines(np.uint8(th), 1, np.pi / 180, 3)
+    for rho, theta in lines[0]:
+        a = np.cos(theta)
+        b = np.sin(theta)
+        x0 = a * rho
+        y0 = b * rho
+        x1 = int(x0 + 1000 * (-b))
+        y1 = int(y0 + 1000 * (a))
+        x2 = int(x0 - 1000 * (-b))
+        y2 = int(y0 - 1000 * (a))
+
+        cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+
+    cv2.imwrite("../assets/SFED/edges/" + str(imgNo) + ".jpg", th)
+    cv2.imwrite("../assets/SFED/img/" + str(imgNo) + ".jpg", img)
 
 if __name__ == "__main__":
     # src = "../assets/img_in/17.jpg"
@@ -218,4 +234,4 @@ if __name__ == "__main__":
 
     for imgNo in range(11, 20):
         src = "../assets/img_in/" + str(imgNo) + ".jpg"
-        canny(src, imgNo)
+        SFED(src, imgNo)
