@@ -45,7 +45,7 @@ def houghLinesOut(img, edges):
 
 # バイラテラルフィルタの連続適用
 def straightBilateral(src, count):
-    for i in range(count):
+    for _ in range(count):
         # バイラテラルフィルタ(入力画像, 注目画素の領域, 画素値の差による重み, 画素間の距離差による重み)
         src = cv2.bilateralFilter(src, 15, 10, 10)
 
@@ -72,7 +72,7 @@ def main(src):
     # ret, th = cv2.threshold(bi, 0, 255, cv2.THRESH_OTSU)
 
     # lap = cv2.Laplacian(bi, cv2.CV_8U, ksize=3)
-    
+
     # Cannyエッジ検出
     edges = cv2.Canny(bi, 50, 100)
 
