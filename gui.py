@@ -1,45 +1,85 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import os
-import tkinter
-from tkinter import filedialog as tkFileDialog
+import tkinter as tk
+import cv2
+import numpy as np
+from tkinter import filedialog as filedialog
 from tkinter import messagebox as tkMessageBox
 
+import mouseParam as mp
+import trim
+import lineDetect as ld
 
-def DeleteEntryValue(event):
-    #エントリーの中身を削除
-    EditBox.delete(0, tkinter.END)
-    #ファイル選択
-    fTyp = [('画像ファイル', '*.png')]
-    iDir = '/home/ユーザ名/'
+
+# ファイル選択
+def selectFilePath(event):
+    # エントリーの中身を削除
+    editBox.delete(0, tk.END)
+    # ファイル選択
+    fTyp = [("", "*.jpg")]
+    iDir = "/home/ユーザ名/"
 
     # askopenfilename 一つのファイルを選択する。
-    filename = tkFileDialog.askopenfilename(filetypes=fTyp, initialdir=iDir)
+    filePath = filedialog.askopenfilename(filetypes=fTyp, initialdir=iDir)
 
-    tkMessageBox.showinfo('FILE NAME is ...', filename)
+    editBox.insert(tk.END, filePath)
 
-    # askdirectory ディレクトリを選択する。
-    # dirname = tkFileDialog.askdirectory(initialdir=iDir)
+# 二点クリック
+def imgShow(event):
+    filePath = editBox.get()
+    # 入力画像
+    img = cv2.imread(filePath)
 
-    # tkMessageBox.showinfo('SELECTED DIRECROTY is ...', dirname)
+    wname = "img"
+    cv2.namedWindow(wname)
+    npoints = 2
+    ptlist = mp.PointList(npoints)
+    cv2.setMouseCallback(wname, mp.onMouse, [wname, img, ptlist])
+    cv2.imshow(wname, img)
+    cv2.waitKey()
+    global point
+    point = ptlist.ptlist
+    cv2.destroyAllWindows()
 
-root = tkinter.Tk()
+# トリミング
+def triming(event):
+    filePath = editBox.get()
+    global img
+    img = trim.main(filePath, point)
+    ld.main(img)
+
+
+root = tk.Tk()
 root.title(u"ブレイクライン抽出")
-root.geometry("600x700")
+root.geometry("700x600")
 
-#ラベル
-Static1 = tkinter.Label(text=u'入力画像のパス')
-Static1.pack()
+# 座標のグローバル変数
+point = []
+img = np.zeros((10, 10, 3), np.uint8)
 
-#エントリー
-EditBox = tkinter.Entry()
-EditBox.insert(tkinter.END, "")
-EditBox.pack()
+# 画像パスラベル
+inpathLbl = tk.Label(text=u"入力画像のパス：")
+inpathLbl.place(x=80, y=55)
 
-#ボタン
-Button = tkinter.Button(text=u'画像選択')
-Button.bind("<Button-1>", DeleteEntryValue)
-Button.pack()
+# パスエントリー
+editBox = tk.Entry(width=50)
+editBox.place(x=190, y=50)
+
+# 画像選択ボタン
+imgSelectBtn = tk.Button(text=u"画像選択")
+imgSelectBtn.bind("<Button-1>", selectFilePath)
+imgSelectBtn.place(x=220, y=100)
+
+# 座標選択ボタン
+imgShowBtn = tk.Button(text=u"座標選択")
+imgShowBtn.bind("<Button-1>", imgShow)
+imgShowBtn.place(x=400, y=100)
 
 
+ShowBtn = tk.Button(text=u"座標表示")
+ShowBtn.bind("<Button-1>", triming)
+ShowBtn.place(x=400, y=150)
 
 root.mainloop()
