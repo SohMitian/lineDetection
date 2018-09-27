@@ -5,7 +5,7 @@ import lineDetect as ld
 # class trimmer:
 
 # 中点Mを求める
-def calPointM(startPoint, endPoint):
+def calPointM(startPoint: list, endPoint: list) -> list:
     midPoint = []
     x = (startPoint[0] + endPoint[0]) / 2
     y = (startPoint[1] + endPoint[1]) / 2
@@ -14,14 +14,14 @@ def calPointM(startPoint, endPoint):
     return midPoint
 
 # Mを原点とした角度を計算
-def calAngle(midPoint, endPoint):
+def calAngle(midPoint: list, endPoint: list) -> float:
     # 角度（単位：ラジアン）
     rad = np.arctan2(endPoint[1] - midPoint[1], endPoint[0] - midPoint[0])
 
     return rad
 
 # Mを原点とした回転
-def rotationImg(img, midPoint, rad):
+def rotationImg(img: np.ndarray, midPoint: list, rad: float) -> np.ndarray:
 
     # 画像サイズ
     size = (img.shape[1],img.shape[0])
@@ -34,7 +34,7 @@ def rotationImg(img, midPoint, rad):
     return img_rot
 
 # エッジの回転後座標
-def rotationPoint(originPoint, rad, point):
+def rotationPoint(originPoint: list, rad: float, point: list) -> list:
     rotedPoint = []
 
     # 原点を中点に移動
@@ -55,9 +55,11 @@ def rotationPoint(originPoint, rad, point):
     return rotedPoint
 
 # トリミング
-def triming(img, p1, p2):
-    x = (p1[0], p1[1])
-    y = (p2[0], p2[1])
+def triming(img: np.ndarray, p1: list, p2: list):
+
+    # ListのtopIndexを省く
+    p1 = [p1[0][0], p1[0][1]]
+    p2 = [p2[0][0], p2[0][1]]
     # 原点
     x, y = p1[0], p1[1]-50
     # 高さ、幅
@@ -68,33 +70,24 @@ def triming(img, p1, p2):
 
     return dst
 
-def main(srcPath, point):
+def main(srcPath: str, point: list) -> np.ndarray:
     img = cv2.imread(srcPath)
-    # エッジ座標をlistに変換
-    startPoint = []
-    endPoint = []
-    startPoint += [point[0][0], point[0][1]]
-    endPoint += [point[1][0], point[1][1]]
-
-    cv2.line(img, point[0], point[1], (0, 0, 255), 5)
 
     # 中点を計算
-    midPoint = calPointM(startPoint, endPoint)
+    midPoint = calPointM(point[0], point[1])
     # 角度を計算
-    rad = calAngle(midPoint, endPoint)
+    rad = calAngle(midPoint, point[1])
     # 回転した画像を生成
     img_rot = rotationImg(img, midPoint, rad)
 
-    #回転後のエッジ座標を計算（タプル）
-    startPoint = tuple(rotationPoint(midPoint, rad, startPoint))
-    endPoint = tuple(rotationPoint(midPoint, rad, endPoint))
-
-    cv2.line(img_rot, startPoint, endPoint, (255, 0, 0), 5)
+    #回転後のエッジ座標を計算（list）
+    startPoint = [rotationPoint(midPoint, rad, point[0])]
+    endPoint = [rotationPoint(midPoint, rad, point[1])]
 
     # エッジに幅をもたせてトリミング
     img_trim = triming(img_rot, startPoint, endPoint)
 
-    cv2.imshow("img", img_rot)
+    cv2.imshow("img", img_trim)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
