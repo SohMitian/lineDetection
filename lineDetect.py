@@ -17,7 +17,7 @@ def windowControl():
 
 # 古典的ハフ変換
 def houghLinesOut(img, edges):
-    lines = cv2.HoughLines(edges, 1, np.pi / 180,300)
+    lines = cv2.HoughLines(edges, 1, np.pi / 180,120)
     for lines in lines[0:5]:
 
         rho, theta = lines[0]
@@ -41,6 +41,8 @@ def houghLinesOut(img, edges):
         if deg <= 2 and deg >= -2:
             # print("deg", deg)
             cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 4)
+    
+    # return img
 
 
 # バイラテラルフィルタの連続適用
@@ -61,8 +63,8 @@ def writeList(path, imgNo, img_list):
 def main(src):
 
     # 画像読み込み
-    img = cv2.imread(src)
-
+    # img = cv2.imread(src)
+    img = src
     # グレースケール化
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
@@ -101,8 +103,8 @@ def main(src):
 
 
 if __name__ == "__main__":
-    src = "../assets/img_in/edges_2.jpg"
-
+    # src = "../assets/img_in/edges_0.jpg"
+    src ="hough.jpg"
     # dogFilter(src)
 
     # for imgNo in range(1, 3):
