@@ -57,13 +57,19 @@ def rotationPoint(originPoint: list, rad: float, point: list) -> list:
 # トリミング
 def triming(img: np.ndarray, p1: list, p2: list):
 
-    # ListのtopIndexを省く
-    p1 = [p1[0][0], p1[0][1]]
-    p2 = [p2[0][0], p2[0][1]]
+    # ListのtopIndexを省く処理
+    # p1は始点 p2は終点
+    startP = [p1[0][0], p1[0][1]]
+    endP = [p2[0][0], p2[0][1]]
+
     # 原点
-    x, y = p1[0], p1[1]-50
+    # xに始点のX座標を yに始点のY座標から20pxを引いて入れる
+    x, y = startP[0], startP[1] - 100
+
     # 高さ、幅
-    w, h = abs(p1[0] - p2[0]), abs(p1[1] - p2[1]) + 100
+    # 高さ：始点y - 終点y
+    # 幅：(始点x - 終点x) + 100
+    w, h = abs(startP[0] - endP[0]), abs(startP[1] - endP[1]) + 100
 
     # 入力画像から窓画像を切り取り
     dst = img[y:y + h, x:x + w]
@@ -87,9 +93,9 @@ def main(srcPath: str, point: list) -> np.ndarray:
     # エッジに幅をもたせてトリミング
     img_trim = triming(img_rot, startPoint, endPoint)
 
-    cv2.imshow("img", img_trim)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow("img", img_trim)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     return img_trim
     # rot_p1 = rotationPoint(midPoint, rad, startPoint)
