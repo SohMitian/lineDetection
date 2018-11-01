@@ -17,7 +17,7 @@ def windowControl():
 
 # 古典的ハフ変換
 def houghLinesOut(img, edges):
-    lines = cv2.HoughLines(edges, 1, np.pi / 180,120)
+    lines = cv2.HoughLines(edges, 1, np.pi / 180,60)
     for lines in lines[0:5]:
 
         rho, theta = lines[0]
@@ -41,8 +41,6 @@ def houghLinesOut(img, edges):
         if deg <= 2 and deg >= -2:
             # print("deg", deg)
             cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 4)
-    
-    # return img
 
 
 # バイラテラルフィルタの連続適用
@@ -60,11 +58,9 @@ def writeList(path, imgNo, img_list):
         os.makedirs(path + str(imgNo), exist_ok=True)
         cv2.imwrite(path + str(imgNo) + "/" + str(i) + ".jpg", img_list[i])
 
-def main(src):
-
-    # 画像読み込み
-    # img = cv2.imread(src)
-    img = src
+def main(img):
+    # # 画像読み込み
+    # img = src
     # グレースケール化
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
@@ -82,33 +78,14 @@ def main(src):
     try:
         houghLinesOut(img, edges)
     except TypeError:
-        pass
+        notMsg = "検出できませんでした"
+        print(notMsg)
 
-    # img = trim.triming(img,p1, p2)
-    # cv2.imshow("img", img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-    cv2.imwrite("gray.jpg", gray)
-    cv2.imwrite("edges.jpg", edges)
-    cv2.imwrite("hough.jpg", img)
-    # cv2.imwrite("../assets/main/" + str(imgNo) + "/1_gray.jpg", gray)
-    # cv2.imwrite("../assets/main/" + str(imgNo) + "/2_bi.jpg", bi)
-    # cv2.imwrite("../assets/main/" + str(imgNo) + "/3_lap.jpg", lap)
-    # cv2.imwrite("../assets/main/" + str(imgNo) + "/4_th.jpg", th)
-    # # cv2.imwrite("../assets/canny/" + str(imgNo) + "/5_canny.jpg", edges)
-    # cv2.imwrite("../assets/main/" + str(imgNo) + "/6_result.jpg", img)
-
-    # os.makedirs("../assets/main/result", exist_ok=True)
-    # cv2.imwrite("../assets/main/result/" + str(imgNo) + ".jpg", img)
+    os.makedirs("result", exist_ok=True)
+    cv2.imwrite("result/bi.jpg", bi)
+    cv2.imwrite("result/edges.jpg", edges)
+    cv2.imwrite("result/hough.jpg", img)
 
 
 if __name__ == "__main__":
-    # src = "../assets/img_in/edges_0.jpg"
-    src ="hough.jpg"
-    # dogFilter(src)
-
-    # for imgNo in range(1, 3):
-    #     src = "../assets/img_in/edges_" + str(imgNo) + ".jpg"
-        # src = "/Users/sho/Data/research/assets/img_in/edges_" + str(imgNo) + ".jpg"
-
-    main(src)
+    src = "1/hough.jpg"
