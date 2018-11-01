@@ -2,6 +2,7 @@
 /img_out/
 /dist/
 /build/
+/result/
 /1/
 /__pycache__/
 dog.py
