@@ -49,6 +49,7 @@ def triming(event):
     global img
     img = trim.main(filePath, point)
     ld.main(img)
+    tkMessageBox.showinfo('LineDetect', '完了')
 
 
 root = tk.Tk()
@@ -81,5 +82,7 @@ imgShowBtn.place(x=400, y=100)
 ShowBtn = tk.Button(text=u"座標表示")
 ShowBtn.bind("<Button-1>", triming)
 ShowBtn.place(x=400, y=150)
+
+
 
 root.mainloop()
