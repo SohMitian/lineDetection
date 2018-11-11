@@ -35,41 +35,43 @@ def rotationImg(img: np.ndarray, midPoint: list, rad: float) -> np.ndarray:
 
 # エッジの回転後座標
 def rotationPoint(originPoint: list, rad: float, point: list) -> list:
-    rotedPoint = []
+    rotatedPoint = []
 
     # 原点を中点に移動
     x = point[0] - originPoint[0]
     y = point[1] - originPoint[1]
 
-    rad = 45
+    # 引数はラジアン
+    cos = np.cos(-rad)
+    sin = np.sin(-rad)
     # 回転
-    x = x * np.cos(np.radians(rad)) - y * np.sin(np.radians(rad))
-    y = x * np.sin(np.radians(rad)) + y * np.cos(np.radians(rad))
+    x_dash = (x * cos) - (y * sin)
+    y_dash = (x * sin) + (y * cos)
+
 
     # 原点をもとに戻す
-    x = x + originPoint[0]
-    y = y + originPoint[1]
+    x_dash = x_dash + originPoint[0]
+    y_dash = y_dash + originPoint[1]
 
-    rotedPoint += [int(np.round(x)), int(np.round(y))]
+    rotatedPoint += [int(np.round(x_dash)), int(np.round(y_dash))]
 
-    return rotedPoint
+    return rotatedPoint
 
 # トリミング
-def triming(img: np.ndarray, p1: list, p2: list):
+def triming(img: np.ndarray, stP: list, endP: list):
 
     # ListのtopIndexを省く処理
-    # p1は始点 p2は終点
-    startP = [p1[0][0], p1[0][1]]
-    endP = [p2[0][0], p2[0][1]]
+    startP = [stP[0][0], stP[0][1]]
+    endP = [endP[0][0], endP[0][1]]
 
     # 原点
-    # xに始点のX座標を yに始点のY座標から20pxを引いて入れる
-    x, y = startP[0], startP[1] - 100
+    # xに始点のX座標を yに始点のY座標
+    x, y = startP[0], startP[1]
 
-    # 高さ、幅
+    # 幅と高さ
+    # 幅：始点x - 終点x
     # 高さ：始点y - 終点y
-    # 幅：(始点x - 終点x) + 100
-    w, h = abs(startP[0] - endP[0]), abs(startP[1] - endP[1]) + 100
+    w, h = abs(startP[0] - endP[0]), abs(startP[1] - endP[1]) +100
 
     # 入力画像から窓画像を切り取り
     dst = img[y:y + h, x:x + w]
@@ -85,32 +87,27 @@ def main(srcPath: str, point: list) -> np.ndarray:
     rad = calAngle(midPoint, point[1])
     # 回転した画像を生成
     img_rot = rotationImg(img, midPoint, rad)
+    # cv2.line(img_rot, tuple(point[0]),tuple(point[1]), (0, 0, 255), 5)
 
     #回転後のエッジ座標を計算（list）
-    startPoint = [rotationPoint(midPoint, rad, point[0])]
-    endPoint = [rotationPoint(midPoint, rad, point[1])]
+    rotatedStartPoint = [rotationPoint(midPoint, rad, point[0])]
+    rotatedEndPoint = [rotationPoint(midPoint, rad, point[1])]
+
+# # 線の描画
+# cv2.line(img_rot, tuple(rotatedStartPoint[0]),
+#          tuple(rotatedEndPoint[0]), (0, 0, 255), 5)
+# # 始点
+# cv2.circle(img_rot, tuple(rotatedStartPoint[0]), 10, (255, 0, 0), -1)
+# # 終点
+# cv2.circle(img_rot, tuple(rotatedEndPoint[0]), 10, (0, 255, 0), -1)
 
     # エッジに幅をもたせてトリミング
-    img_trim = triming(img_rot, startPoint, endPoint)
-
-    # cv2.imshow("img", img_trim)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    img_trim = triming(img_rot, rotatedStartPoint, rotatedEndPoint)
 
     return img_trim
-    # rot_p1 = rotationPoint(midPoint, rad, startPoint)
-    # rot_p2 = rotationPoint(midPoint, rad, endPoint)
-
-    # cv2.line(img_rot, startPoint, endPoint, (0, 0, 255), 3)
-    # cv2.circle(img_rot, midPoint, 3, (0, 255, 0), 3)
-    # cv2.line(img_rot, rot_p1, rot_p2, (255, 0, 0), 3)
-
-    # cv2.imshow("img_rot", img_rot)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
-    point = (4983, 919),(4833, 2719)
-    img = main("2.jpg", point)
-
+    point = (1900, 521),(1804, 2045)
+    img = main("1/2.jpg", point)
+    cv2.imwrite("result/2.jpg", img)
