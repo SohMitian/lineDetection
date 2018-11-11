@@ -19,7 +19,6 @@ def windowControl():
 def houghLinesOut(img, edges):
     lines = cv2.HoughLines(edges, 1, np.pi / 180,60)
     for lines in lines[0:5]:
-
         rho, theta = lines[0]
         a = np.cos(theta)
         b = np.sin(theta)
@@ -38,9 +37,9 @@ def houghLinesOut(img, edges):
         #     (x2 - x1) / np.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))))
         # deg = np.degrees(rad)
 
-        if deg <= 2 and deg >= -2:
+        # if deg <= 2 and deg >= -2:
             # print("deg", deg)
-            cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 4)
+        cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 4)
 
 
 # バイラテラルフィルタの連続適用
@@ -58,9 +57,13 @@ def writeList(path, imgNo, img_list):
         os.makedirs(path + str(imgNo), exist_ok=True)
         cv2.imwrite(path + str(imgNo) + "/" + str(i) + ".jpg", img_list[i])
 
-def main(img):
+def main(img, filePath):
+
+    # 画像名取得
+    basename = os.path.basename(filePath)
+    
     # # 画像読み込み
-    # img = src
+    # img = imread(src)
     # グレースケール化
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
@@ -82,10 +85,28 @@ def main(img):
         print(notMsg)
 
     os.makedirs("result", exist_ok=True)
-    cv2.imwrite("result/bi.jpg", bi)
-    cv2.imwrite("result/edges.jpg", edges)
-    cv2.imwrite("result/hough.jpg", img)
+    # cv2.imwrite("result/bi.jpg", bi)
+    # cv2.imwrite("result/edges.jpg", edges)
+    cv2.imwrite("result/" + basename, img)
 
 
+# 単体テスト用
 if __name__ == "__main__":
-    src = "1/hough.jpg"
+    basePath = "../assets/"
+
+    inPath = "img_in/" # テスト用ファイル名に変更するだけ（それ以外は変えない）
+    
+    fileAmount = len(glob.glob(basePath + inPath + '*'))
+    for imgNo in range(1, fileAmount):
+        src = basePath + inPath +"edges_" + str(imgNo) + ".jpg"
+        img = cv2.imread(src)
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        bi = straightBilateral(gray, 2)
+        edges = cv2.Canny(bi, 50, 100)
+        try:
+            houghLinesOut(img, edges)
+        except TypeError:
+            notMsg = "検出できませんでした"
+            print(notMsg)
+        os.makedirs(basePath + inPath + "result", exist_ok=True)
+        cv2.imwrite(basePath + inPath + "result/edges_" + str(imgNo) + ".jpg", img)
