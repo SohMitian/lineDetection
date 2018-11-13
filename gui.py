@@ -48,7 +48,7 @@ def triming(event):
     filePath = editBox.get()
     global img
     img = trim.main(filePath, point)
-    ld.main(img)
+    ld.main(img, filePath)
     tkMessageBox.showinfo('LineDetect', '完了')
 
 
