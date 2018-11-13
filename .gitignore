@@ -6,4 +6,6 @@
 /1/
 /__pycache__/
 dog.py
+test.py
 lineDetect.spec
+*.jpg
